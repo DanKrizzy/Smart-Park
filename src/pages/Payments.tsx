@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, CreditCard, FileText } from 'lucide-react';
+import { Plus, CreditCard, FileText, Printer } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import PageHeader from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useData } from '@/context/DataContext';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'sonner';
+import { Separator } from '@/components/ui/separator';
 
 const Payments = () => {
   const { payments, addPayment, serviceRecords, getServiceByCode, getCarByPlate, getRecordByNumber } = useData();
@@ -166,60 +167,125 @@ const Payments = () => {
 
       {/* Bill Dialog */}
       <Dialog open={billOpen} onOpenChange={setBillOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="font-display">Invoice / Bill</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="sm:max-w-lg print:shadow-none">
+          <div className="no-print">
+            <DialogHeader>
+              <DialogTitle className="font-display">Invoice / Bill</DialogTitle>
+            </DialogHeader>
+          </div>
           {billDetails && (
-            <div className="mt-4">
-              <div className="text-center mb-6 pb-6 border-b border-border">
-                <h2 className="text-2xl font-display font-bold text-foreground">SmartPark Garage</h2>
-                <p className="text-muted-foreground">Car Repair Invoice</p>
-                <p className="text-sm text-muted-foreground">Rubavu District, Western Province, Rwanda</p>
+            <div className="print-area">
+              {/* Printable Invoice Content */}
+              <div className="print-card p-6 rounded-lg border border-border">
+                {/* Header */}
+                <div className="text-center mb-6 pb-6 border-b border-border">
+                  <h2 className="text-2xl font-display font-bold text-foreground">SmartPark Garage</h2>
+                  <p className="text-muted-foreground print-muted">Car Repair Invoice</p>
+                  <p className="text-sm text-muted-foreground print-muted">Rubavu District, Western Province, Rwanda</p>
+                  <p className="text-sm text-muted-foreground print-muted mt-1">Tel: +250 XXX XXX XXX</p>
+                </div>
+
+                {/* Invoice Details */}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground print-muted">Invoice Number</p>
+                      <p className="font-semibold">{billDetails.payment.paymentNumber}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground print-muted">Date</p>
+                      <p className="font-semibold">{billDetails.payment.paymentDate}</p>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Customer/Car Details */}
+                  <div className="print-card p-4 rounded-lg bg-muted/50">
+                    <p className="text-sm font-medium text-muted-foreground print-muted mb-2">CUSTOMER / VEHICLE</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-sm text-muted-foreground print-muted">Plate Number</p>
+                        <p className="font-semibold">{billDetails.car?.plateNumber}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground print-muted">Vehicle Model</p>
+                        <p className="font-semibold">{billDetails.car?.model}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-sm text-muted-foreground print-muted">Driver Contact</p>
+                        <p className="font-semibold">{billDetails.car?.driverPhone}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Service Details */}
+                  <div className="print-card p-4 rounded-lg bg-muted/50">
+                    <p className="text-sm font-medium text-muted-foreground print-muted mb-2">SERVICE DETAILS</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <p className="text-sm text-muted-foreground print-muted">Service</p>
+                        <p className="font-semibold">{billDetails.service?.serviceName}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground print-muted">Service Code</p>
+                        <p className="font-mono font-semibold">{billDetails.service?.serviceCode}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground print-muted">Record Number</p>
+                        <p className="font-mono font-semibold">{billDetails.record.recordNumber}</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground print-muted">Service Date</p>
+                        <p className="font-semibold">{billDetails.record.serviceDate}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="print-amount p-4 rounded-xl gradient-primary text-primary-foreground">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-sm opacity-80">Total Amount Paid</p>
+                        <p className="font-medium">Payment Complete</p>
+                      </div>
+                      <p className="text-3xl font-display font-bold">
+                        {billDetails.payment.amountPaid.toLocaleString()} Rwf
+                      </p>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* Footer */}
+                  <div className="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                      <p className="text-sm text-muted-foreground print-muted">Payment Received By</p>
+                      <p className="font-semibold">{username}</p>
+                      <p className="text-sm text-muted-foreground print-muted">Chief Mechanic</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground print-muted">Signature</p>
+                      <div className="mt-4 border-b border-dashed border-muted-foreground w-32 ml-auto"></div>
+                    </div>
+                  </div>
+
+                  {/* Thank you message */}
+                  <div className="text-center pt-4 mt-4 border-t border-border">
+                    <p className="text-sm text-muted-foreground print-muted">Thank you for choosing SmartPark Garage!</p>
+                    <p className="text-xs text-muted-foreground print-muted mt-1">For any inquiries, please contact us.</p>
+                  </div>
+                </div>
               </div>
-              
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Invoice Number</p>
-                    <p className="font-semibold">{billDetails.payment.paymentNumber}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Date</p>
-                    <p className="font-semibold">{billDetails.payment.paymentDate}</p>
-                  </div>
-                </div>
 
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1">Car Details</p>
-                  <p className="font-semibold">{billDetails.car?.plateNumber} - {billDetails.car?.model}</p>
-                  <p className="text-sm text-muted-foreground">Driver: {billDetails.car?.driverPhone}</p>
-                </div>
-
-                <div className="p-4 rounded-lg bg-muted/50">
-                  <p className="text-sm text-muted-foreground mb-1">Service Provided</p>
-                  <p className="font-semibold">{billDetails.service?.serviceName}</p>
-                  <p className="text-sm text-muted-foreground">Record: {billDetails.record.recordNumber}</p>
-                </div>
-
-                <div className="p-4 rounded-xl gradient-primary text-primary-foreground">
-                  <div className="flex justify-between items-center">
-                    <p className="font-medium">Amount Paid</p>
-                    <p className="text-2xl font-display font-bold">
-                      {billDetails.payment.amountPaid.toLocaleString()} Rwf
-                    </p>
-                  </div>
-                </div>
-
-                <div className="text-center pt-4 border-t border-border">
-                  <p className="text-sm text-muted-foreground">Payment Received By</p>
-                  <p className="font-semibold">{username} (Chief Mechanic)</p>
-                </div>
-              </div>
-
-              <div className="flex justify-end mt-6">
-                <Button onClick={() => window.print()} variant="outline">
-                  Print Bill
+              {/* Print Button - Hidden when printing */}
+              <div className="flex justify-end mt-6 gap-2 no-print">
+                <Button variant="outline" onClick={() => setBillOpen(false)}>
+                  Close
+                </Button>
+                <Button onClick={() => window.print()} className="gradient-primary">
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print Receipt
                 </Button>
               </div>
             </div>
