@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, CreditCard, FileText, Printer } from 'lucide-react';
+import { Plus, CreditCard, FileText, Printer, Receipt } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import PageHeader from '@/components/ui/page-header';
 import { Button } from '@/components/ui/button';
@@ -77,7 +77,16 @@ const Payments = () => {
     return { payment, record, service, car };
   };
 
+  const [smallBillOpen, setSmallBillOpen] = useState(false);
+  const [selectedSmallPayment, setSelectedSmallPayment] = useState<string | null>(null);
+
+  const viewSmallBill = (paymentNumber: string) => {
+    setSelectedSmallPayment(paymentNumber);
+    setSmallBillOpen(true);
+  };
+
   const billDetails = selectedPayment ? getPaymentDetails(selectedPayment) : null;
+  const smallBillDetails = selectedSmallPayment ? getPaymentDetails(selectedSmallPayment) : null;
 
   return (
     <DashboardLayout>
@@ -164,6 +173,71 @@ const Payments = () => {
           <p className="text-warning font-medium">Create service records first to record payments.</p>
         </div>
       )}
+
+      {/* Small Bill Dialog */}
+      <Dialog open={smallBillOpen} onOpenChange={setSmallBillOpen}>
+        <DialogContent className="sm:max-w-xs print:shadow-none">
+          <div className="no-print">
+            <DialogHeader>
+              <DialogTitle className="font-display">Small Receipt</DialogTitle>
+            </DialogHeader>
+          </div>
+          {smallBillDetails && (
+            <div className="print-area-small">
+              <div className="print-card-small border border-border rounded-lg p-4 text-sm font-mono">
+                <div className="text-center border-b border-dashed border-border pb-3 mb-3">
+                  <p className="font-bold text-base font-display">SmartPark Garage</p>
+                  <p className="text-muted-foreground text-xs">Car Repair Receipt</p>
+                </div>
+                <div className="space-y-1 text-xs mb-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Receipt#</span>
+                    <span className="font-semibold">{smallBillDetails.payment.paymentNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Date</span>
+                    <span>{smallBillDetails.payment.paymentDate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Record#</span>
+                    <span>{smallBillDetails.record.recordNumber}</span>
+                  </div>
+                </div>
+                <div className="border-t border-dashed border-border pt-3 mb-3 space-y-1 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Plate</span>
+                    <span className="font-semibold">{smallBillDetails.car?.plateNumber}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Model</span>
+                    <span>{smallBillDetails.car?.model}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Service</span>
+                    <span className="text-right">{smallBillDetails.service?.serviceName}</span>
+                  </div>
+                </div>
+                <div className="border-t-2 border-border pt-3 mb-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-sm">TOTAL PAID</span>
+                    <span className="font-bold text-base">{smallBillDetails.payment.amountPaid.toLocaleString()} Rwf</span>
+                  </div>
+                </div>
+                <div className="border-t border-dashed border-border pt-3 text-center text-xs text-muted-foreground space-y-1">
+                  <p>Received by: <span className="font-semibold text-foreground">{username}</span></p>
+                  <p className="mt-2">Thank you for your business!</p>
+                </div>
+              </div>
+              <div className="flex justify-end mt-4 gap-2 no-print">
+                <Button variant="outline" size="sm" onClick={() => setSmallBillOpen(false)}>Close</Button>
+                <Button size="sm" onClick={() => window.print()} className="gradient-primary">
+                  <Printer className="w-3 h-3 mr-1" />Print
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Bill Dialog */}
       <Dialog open={billOpen} onOpenChange={setBillOpen}>
@@ -315,7 +389,7 @@ const Payments = () => {
                     <TableHead>Date</TableHead>
                     <TableHead>Service Record</TableHead>
                     <TableHead>Amount</TableHead>
-                    <TableHead className="text-right">Bill</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -340,10 +414,16 @@ const Payments = () => {
                           {payment.amountPaid.toLocaleString()} Rwf
                         </TableCell>
                         <TableCell className="text-right">
-                          <Button size="sm" variant="ghost" onClick={() => viewBill(payment.paymentNumber)}>
-                            <FileText className="w-4 h-4 mr-1" />
-                            View Bill
-                          </Button>
+                          <div className="flex items-center justify-end gap-1">
+                            <Button size="sm" variant="ghost" onClick={() => viewSmallBill(payment.paymentNumber)} title="Small Receipt">
+                              <Receipt className="w-4 h-4 mr-1" />
+                              Small
+                            </Button>
+                            <Button size="sm" variant="ghost" onClick={() => viewBill(payment.paymentNumber)} title="Full Invoice">
+                              <FileText className="w-4 h-4 mr-1" />
+                              Full Bill
+                            </Button>
+                          </div>
                         </TableCell>
                       </motion.tr>
                     );
