@@ -142,7 +142,6 @@
 
 /* Print-friendly styles for bills/invoices */
 @media print {
-  /* Hide everything except the printable content */
   body * {
     visibility: hidden;
   }
@@ -162,12 +161,40 @@
     color: black !important;
   }
 
-  /* Hide non-printable elements */
+  /* Small receipt print area */
+  .print-area-small,
+  .print-area-small * {
+    visibility: visible;
+  }
+
+  .print-area-small {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80mm; /* standard thermal receipt width */
+    padding: 6mm;
+    background: white !important;
+    color: black !important;
+    font-family: monospace !important;
+  }
+
+  .print-area-small .print-card-small {
+    background: white !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 10px !important;
+    line-height: 1.4 !important;
+  }
+
+  .print-area-small p,
+  .print-area-small span {
+    color: black !important;
+  }
+
   .no-print {
     display: none !important;
   }
 
-  /* Reset backgrounds and shadows for print */
   .print-area .print-card {
     background: white !important;
     border: 1px solid #e5e5e5 !important;
@@ -176,7 +203,6 @@
     print-color-adjust: exact;
   }
 
-  /* Ensure text is black for readability */
   .print-area h1,
   .print-area h2,
   .print-area h3,
@@ -189,7 +215,6 @@
     color: #666 !important;
   }
 
-  /* Amount highlight */
   .print-area .print-amount {
     background: #f5f5f5 !important;
     color: black !important;
@@ -198,14 +223,13 @@
     print-color-adjust: exact;
   }
 
-  /* Ensure proper page breaks */
   .print-area {
     page-break-inside: avoid;
   }
 
-  /* Hide dialog overlay and backdrop */
   [data-radix-dialog-overlay],
   [data-radix-dialog-content]::before {
     display: none !important;
   }
 }
+
